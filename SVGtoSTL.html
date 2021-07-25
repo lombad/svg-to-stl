@@ -176,6 +176,8 @@
         // Handler for form submit
         $("form").submit(function(e){
             e.preventDefault();
+            // save form selections
+            saveFormSelections();
             // Numeric validations would go here
             clearGroup(group);
             renderObject(svgPaths, scene, group, getFormSelections());
@@ -196,6 +198,8 @@
         // When asked to export 3D scene to STL file, do so,
         // using the uploaded filename with a changed extension
         $(".download").on("click", function(){ saveSTL(scene, fileName.replace(/\.[^\.]*$/, "")); });
+        // init form from selections
+        initFormSelections();
     });
 
     // Check for webgl support
@@ -252,6 +256,39 @@
         };
     }
 
+    // Set options for the form from localStorage
+    function initFormSelections() {
+        localStorage.getItem('input#typeSize') != null ? $("input#typeSize").val(localStorage.getItem('input#typeSize')) : null; // typeSize
+        localStorage.getItem('input#typeDepth') != null ? $("input#typeDepth").val(localStorage.getItem('input#typeDepth')) : null; // typeDepth
+        localStorage.getItem('input#invertType') != null ? $("input#invertType").prop("checked", true) : null; // wantInvertedType
+        localStorage.getItem('input#reverseWO') != null ? $("input#reverseWO").prop("checked", true) : null; // svgWindingIsCW
+        localStorage.getItem('input#bevel') != null ? $("input#bevel").prop("checked", true) : null; // bevelEnabled
+        localStorage.getItem('input#wantBasePlate') != null ? $("input#wantBasePlate").prop("checked", true) : $("input#wantBasePlate").prop("checked", false); // wantBasePlate
+        $("input#wantBasePlate").trigger("change");
+        localStorage.getItem('input[name=baseShape]') != null ? $(`input[name=baseShape][value=${localStorage.getItem('input[name=baseShape]')}]`).prop("checked", true) : null; // basePlateShape
+        localStorage.getItem('input#baseDepth') != null ? $("input#baseDepth").val(localStorage.getItem('input#baseDepth')) : null; // baseDepth
+        localStorage.getItem('input#buffer') != null ? $("input#buffer").val(localStorage.getItem('input#buffer')) : null; // baseBuffer
+        localStorage.getItem('input#showWireFrame') != null ? $("input#showWireFrame").prop("checked", true) : null; // wantWireFrame
+        localStorage.getItem('input#showNormals') != null ? $("input#showNormals").prop("checked", true) : null; // wantEdges
+        localStorage.getItem('input#colorPicker') != null ? $("input#colorPicker").spectrum("set", localStorage.getItem('input#colorPicker')) : null; // objectColor
+    }
+
+    // Save options for the form to localStorage
+    function saveFormSelections() {
+        localStorage.setItem('input#typeSize', $("input#typeSize").val()); // typeSize
+        localStorage.setItem('input#typeDepth', $("input#typeDepth").val()); // typeDepth
+        $("input#invertType").prop("checked") == true ? localStorage.setItem('input#invertType', true) : localStorage.removeItem('input#invertType'); // wantInvertedType
+        $("input#reverseWO").prop("checked") == true ? localStorage.setItem('input#reverseWO', true) : localStorage.removeItem('input#reverseWO'); // svgWindingIsCW
+        $("input#bevel").prop("checked") == true ? localStorage.setItem('input#bevel', true) : localStorage.removeItem('input#bevel'); // bevelEnabled
+        $("input#wantBasePlate").prop("checked") == true ? localStorage.setItem('input#wantBasePlate', true) : localStorage.removeItem('input#wantBasePlate'); // wantBasePlate
+        localStorage.setItem('input[name=baseShape]', $("input[name=baseShape]:checked").val())
+        localStorage.setItem('input#baseDepth', $("input#baseDepth").val()); // baseDepth
+        localStorage.setItem('input#buffer', $("input#buffer").val()); // baseBuffer
+        $("input#showWireFrame").prop("checked") == true ? localStorage.setItem('input#showWireFrame', true) : localStorage.removeItem('input#showWireFrame'); // wantWireFrame
+        $("input#showNormals").prop("checked") == true ? localStorage.setItem('input#showNormals', true) : localStorage.removeItem('input#showNormals'); // wantEdges
+        localStorage.setItem('input#colorPicker', $("input#colorPicker").spectrum("get").toHexString()); // objectColor
+    }
+
     function handleFileSelect(evt) {
       var file = evt.target.files[0]; // FileList object
 
@@ -296,6 +333,9 @@
       readerString.readAsText(evt.target.files[0]);
       // Reads the SVG as a blob, to be referenced via URL
       readerURL.readAsDataURL(evt.target.files[0]);
+
+      // save form selections
+      saveFormSelections();
     };
   </script>
 
